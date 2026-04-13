@@ -30,11 +30,16 @@ npm run start
 推荐方式是先把这个目录作为独立仓库推到 GitHub，然后在 Vercel 网页里一键 Import。
 
 1. 在 GitHub 新建一个私有仓库，例如 `peace-checkin-web`。
-2. 在本目录执行：
+2. 本项目已配置好 `origin`，仓库创建后在本目录执行：
+
+```bash
+git push -u origin main
+```
+
+如果是从零开始配置远端，可以先执行：
 
 ```bash
 git remote add origin git@github.com:<你的 GitHub 用户名>/peace-checkin-web.git
-git push -u origin main
 ```
 
 3. 打开 Vercel Dashboard，选择 `Add New...` -> `Project`。
