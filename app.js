@@ -32,10 +32,13 @@ const successReceiver = document.querySelector("#success-receiver");
 const successStatus = document.querySelector("#success-status");
 const setupNote = document.querySelector("#setup-note");
 const beforeCopy = document.querySelector("#before-copy");
+const generatedImage = document.querySelector("#generated-image");
+const visualCard = document.querySelector("#visual-card");
 const visualDate = document.querySelector("#visual-date");
 const visualStatus = document.querySelector("#visual-status");
 const visualLine = document.querySelector("#visual-line");
 const visualStyle = document.querySelector("#visual-style");
+const generationNote = document.querySelector("#generation-note");
 const promptPreview = document.querySelector("#prompt-preview");
 const shareCopy = document.querySelector("#share-copy");
 const copyPromptButton = document.querySelector("#copy-prompt");
@@ -49,6 +52,8 @@ let contact = getInitialContact();
 let creative = getInitialCreative();
 let records = {};
 let isSaving = false;
+let generatedImageUrl = "";
+let isGeneratingImage = false;
 
 const supabaseClient = getSupabaseClient();
 
@@ -216,6 +221,7 @@ function mapSupabaseRows(rows) {
       receiver: row.receiver_name,
       sender: row.sender_name,
       status: row.status || STATUS_OK,
+      generatedImageUrl: row.generated_image_url || "",
     };
     return nextRecords;
   }, {});
@@ -229,7 +235,7 @@ async function fetchRecords() {
 
   const { data, error } = await supabaseClient
     .from(config.tableName || "peace_checkins")
-    .select("checkin_date, checked_at, receiver_name, sender_name, status")
+    .select("checkin_date, checked_at, receiver_name, sender_name, status, generated_image_url")
     .eq("family_key", contact.familyKey)
     .eq("sender_name", contact.sender)
     .eq("receiver_name", contact.receiver)
@@ -252,6 +258,7 @@ async function saveCheckin() {
     receiver_name: contact.receiver,
     checkin_date: date,
     status: creative.status,
+    prompt: getPromptText(),
     checked_at: checkedAt,
     updated_at: checkedAt,
   };
@@ -264,6 +271,7 @@ async function saveCheckin() {
         receiver: contact.receiver,
         sender: contact.sender,
         status: creative.status,
+        generatedImageUrl: "",
       },
     };
     saveLocalRecords(nextRecords);
@@ -275,7 +283,7 @@ async function saveCheckin() {
     .upsert(row, {
       onConflict: "family_key,sender_name,receiver_name,checkin_date",
     })
-    .select("checkin_date, checked_at, receiver_name, sender_name, status")
+    .select("checkin_date, checked_at, receiver_name, sender_name, status, generated_image_url")
     .single();
 
   if (error) {
@@ -289,6 +297,7 @@ async function saveCheckin() {
       receiver: data.receiver_name,
       sender: data.sender_name,
       status: data.status || STATUS_OK,
+      generatedImageUrl: data.generated_image_url || "",
     },
   };
 }
@@ -322,6 +331,19 @@ function renderCreative() {
   visualStyle.textContent = `${creative.style} · ${creative.mood}`;
   promptPreview.textContent = getPromptText();
   shareCopy.textContent = getShareText();
+
+  if (generatedImageUrl) {
+    generatedImage.src = generatedImageUrl;
+    generatedImage.hidden = false;
+    visualCard.hidden = true;
+    generationNote.textContent = "已通过 Wan API 生成情绪视觉卡。";
+  } else {
+    generatedImage.hidden = true;
+    visualCard.hidden = false;
+    generationNote.textContent = supabaseClient
+      ? "点击报平安后会尝试调用 Wan API；未配置 DASHSCOPE_API_KEY 时显示本地预览。"
+      : "当前显示本地预览；配置 Supabase Edge Function 后会替换为 Wan 生成图。";
+  }
 }
 
 function renderHistory(nextRecords) {
@@ -363,6 +385,7 @@ function renderSuccessCard(record) {
   successTime.textContent = formatDateTime(record.checkedAt);
   successReceiver.textContent = record.receiver;
   successStatus.textContent = record.status;
+  generatedImageUrl = record.generatedImageUrl || generatedImageUrl;
   successCard.hidden = false;
 }
 
@@ -371,9 +394,9 @@ function renderState() {
 
   todayLabel.textContent = formatFullDate();
   renderContact();
-  renderCreative();
   renderHistory(records);
   renderSuccessCard(checked);
+  renderCreative();
 
   if (checked) {
     button.textContent = "今日已平安";
@@ -404,6 +427,52 @@ function hideSetupNote() {
 function showError(error) {
   const details = error?.message ? `：${error.message}` : "";
   showSetupNote(`云端同步失败${details}`);
+}
+
+async function generateCardImage() {
+  if (!supabaseClient) {
+    return "";
+  }
+
+  isGeneratingImage = true;
+  generationNote.textContent = "正在调用 Wan API 生成情绪视觉卡...";
+
+  const { data, error } = await supabaseClient.functions.invoke("generate-card", {
+    body: {
+      prompt: getPromptText(),
+      sender: contact.sender,
+      receiver: contact.receiver,
+      status: creative.status,
+      style: creative.style,
+      mood: creative.mood,
+    },
+  });
+
+  isGeneratingImage = false;
+
+  if (error) {
+    throw error;
+  }
+
+  return data?.imageUrl || "";
+}
+
+async function saveGeneratedImage(imageUrl) {
+  if (!supabaseClient || !imageUrl) {
+    return;
+  }
+
+  await supabaseClient
+    .from(config.tableName || "peace_checkins")
+    .update({
+      generated_image_url: imageUrl,
+      prompt: getPromptText(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("family_key", contact.familyKey)
+    .eq("sender_name", contact.sender)
+    .eq("receiver_name", contact.receiver)
+    .eq("checkin_date", todayKey());
 }
 
 async function copyText(text, buttonElement, doneText) {
@@ -572,12 +641,22 @@ button.addEventListener("click", async () => {
 
   isSaving = true;
   button.disabled = true;
-  button.textContent = "正在同步";
+  button.textContent = "正在生成安心卡";
+  generatedImageUrl = "";
 
   try {
     const firstCheckinToday = !records[todayKey()];
     records = await saveCheckin();
     renderState();
+
+    try {
+      generatedImageUrl = await generateCardImage();
+      await saveGeneratedImage(generatedImageUrl);
+      renderCreative();
+    } catch (error) {
+      showSetupNote(`Wan 图片生成暂未完成：${error?.message || "请检查 Edge Function 和 API Key 配置"}`);
+    }
+
     celebrate();
 
     if (firstCheckinToday) {

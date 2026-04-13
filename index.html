@@ -54,6 +54,24 @@
               <dd id="success-status"></dd>
             </div>
           </dl>
+
+          <section class="result-story" aria-label="普通文字到情绪视觉卡的前后对比">
+            <article class="plain-message">
+              <p class="workflow-label">普通文字</p>
+              <p id="before-copy" class="workflow-copy"></p>
+            </article>
+            <article class="emotion-output">
+              <p class="workflow-label">情绪视觉卡</p>
+              <img id="generated-image" class="generated-image" alt="Wan 生成的报平安视觉卡" hidden />
+              <div id="visual-card" class="visual-card">
+                <p id="visual-date" class="visual-date"></p>
+                <h3 id="visual-status"></h3>
+                <p id="visual-line"></p>
+                <span id="visual-style" class="visual-style"></span>
+              </div>
+              <p id="generation-note" class="generation-note"></p>
+            </article>
+          </section>
         </article>
 
         <p id="setup-note" class="setup-note" hidden></p>
@@ -96,22 +114,7 @@
         <div class="panel-heading">
           <p class="section-kicker">可复用 Skill 输出</p>
           <h2 id="workflow-title">输入一句平安，输出一张可分享的安心卡。</h2>
-        </div>
-
-        <div class="workflow-grid">
-          <article class="workflow-card">
-            <p class="workflow-label">输入</p>
-            <p id="before-copy" class="workflow-copy"></p>
-          </article>
-          <article class="workflow-card after">
-            <p class="workflow-label">输出预览</p>
-            <div class="visual-card">
-              <p id="visual-date" class="visual-date"></p>
-              <h3 id="visual-status"></h3>
-              <p id="visual-line"></p>
-              <span id="visual-style" class="visual-style"></span>
-            </div>
-          </article>
+          <p class="workflow-hint">长辈只需要点上面的大按钮；生成图和前后对比会直接出现在成功卡片里。</p>
         </div>
 
         <div class="prompt-box">

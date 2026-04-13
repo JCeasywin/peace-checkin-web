@@ -17,7 +17,7 @@
 
 当前项目已升级为「报个平安 Skill」的 demo：把一句普通的“我今天平安”，转化成可编辑、可复用、可分享的家庭报平安视觉卡片工作流。
 
-当前版本已经完成关键词编辑、Prompt 生成、成功卡片、分享文案和记录保存。Wan API 的真实图片生成需要下一步通过后端代理接入，避免把 API Key 暴露在 GitHub Pages 前端。
+当前版本已经完成关键词编辑、Prompt 生成、成功卡片、分享文案和记录保存，并提供 Supabase Edge Function 调 Wan API 的代码骨架。Wan API Key 必须放在服务端环境变量里，不要暴露在 GitHub Pages 前端。
 
 参赛说明文档见：
 
@@ -30,7 +30,7 @@ docs/contest-submission.md
 页面默认是 `妈妈` 给 `臭哄小榴莲` 报平安。也可以通过网址参数打开不同联系人版本：
 
 ```text
-https://jceasywin.github.io/peace-checkin-web/?sender=妈妈&receiver=臭哄小榴莲&family=home
+https://duriboo.github.io/peace-checkin-web/?sender=妈妈&receiver=臭哄小榴莲&family=home
 ```
 
 支持的参数：
@@ -88,7 +88,7 @@ git remote add origin git@github.com:<你的 GitHub 用户名>/peace-checkin-web
 5. 等待 1-2 分钟，网页地址通常是：
 
 ```text
-https://jceasywin.github.io/peace-checkin-web/
+https://duriboo.github.io/peace-checkin-web/
 ```
 
 ## Supabase 云端同步
@@ -120,6 +120,62 @@ git push
 ```
 
 注意：`anon public` key 可以放在前端网页里，但当前 SQL 策略为了方便家庭使用，允许匿名读写这张表。不要在这里保存身份证号、手机号、病历等敏感信息。
+
+## Wan API 调用方式
+
+GitHub Pages 不能直接安全调用 Wan API，因为浏览器前端会暴露 API Key。推荐路径是：
+
+```mermaid
+flowchart LR
+  A[长辈点击大按钮] --> B[网页生成结构化 Prompt]
+  B --> C[Supabase Edge Function: generate-card]
+  C --> D[读取 DASHSCOPE_API_KEY]
+  D --> E[调用 Wan 图像生成 API]
+  E --> F[返回图片 URL]
+  F --> G[成功卡片展示情绪视觉卡]
+```
+
+项目里已经提供 Edge Function 示例：
+
+```text
+supabase/functions/generate-card/index.ts
+```
+
+配置步骤：
+
+1. 安装并登录 Supabase CLI。
+2. 创建 Supabase 项目并关联本地项目。
+3. 设置 Wan / DashScope API Key：
+
+```bash
+supabase secrets set DASHSCOPE_API_KEY=你的APIKey
+```
+
+4. 部署函数：
+
+```bash
+supabase functions deploy generate-card
+```
+
+5. 前端会通过 `supabaseClient.functions.invoke("generate-card")` 调用后端函数。
+
+## 字段说明
+
+- `sender`：发送人，默认 `妈妈`
+- `receiver`：接收人，默认 `臭哄小榴莲`
+- `family`：家庭标识，用于区分不同家庭或测试环境
+- `status`：今日状态，例如 `平安`、`已到家`
+- `style`：画面风格，例如 `国风水彩`、`手写卡片`
+- `mood`：情绪关键词，例如 `放心、温暖、晚饭后`
+- `details`：画面补充，用于进一步控制构图、留白和文字氛围
+
+## 商业场景
+
+- 养老服务机构每日关怀卡：工作人员帮老人生成每日状态卡，发给家属。
+- 社区服务通知：社区把“已上门探访”“物资已送达”等状态变成温暖通知卡。
+- 亲子陪伴产品：孩子到家、上学、活动结束后生成安心卡。
+- 宠物寄养日报：宠物店给主人生成“今天吃饭、散步、状态良好”的日报卡。
+- 民宿/旅行安全确认：旅客抵达、入住、出发后生成安全确认卡。
 
 ## 目前限制
 

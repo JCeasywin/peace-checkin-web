@@ -273,7 +273,7 @@ h1 span {
 }
 
 .success-card {
-  width: min(100%, 520px);
+  width: min(100%, 720px);
   padding: 18px;
   border: 1px solid rgba(45, 106, 79, 0.22);
   border-radius: 14px;
@@ -293,10 +293,10 @@ h1 span {
 .success-card dl {
   display: grid;
   gap: 10px;
-  margin: 0;
+  margin: 0 0 16px;
 }
 
-.success-card div {
+.success-card dl > div {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -326,6 +326,41 @@ h1 span {
   line-height: 1.5;
 }
 
+.result-story {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.plain-message,
+.emotion-output {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(216, 221, 213, 0.9);
+  border-radius: 14px;
+  background: rgba(255, 253, 248, 0.78);
+}
+
+.emotion-output {
+  background: linear-gradient(145deg, rgba(231, 239, 232, 0.95), rgba(255, 253, 248, 0.88));
+}
+
+.generated-image {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(34, 34, 34, 0.12);
+}
+
+.generation-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .history-area {
   border-top: 1px solid var(--line);
   padding-top: 20px;
@@ -335,31 +370,11 @@ h1 span {
   border-top: 0;
 }
 
-.workflow-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 14px;
-}
-
-.workflow-card,
 .prompt-box,
 .share-box {
   border: 1px solid rgba(216, 221, 213, 0.9);
   border-radius: 14px;
   background: rgba(255, 253, 248, 0.78);
-}
-
-.workflow-card {
-  min-height: 180px;
-  display: grid;
-  align-content: center;
-  gap: 12px;
-  padding: 18px;
-}
-
-.workflow-card.after {
-  padding: 12px;
-  background: linear-gradient(145deg, rgba(231, 239, 232, 0.95), rgba(255, 253, 248, 0.88));
 }
 
 .workflow-label {
@@ -375,6 +390,12 @@ h1 span {
   font-size: 22px;
   font-weight: 900;
   line-height: 1.35;
+}
+
+.workflow-hint {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .visual-card {
@@ -532,7 +553,7 @@ h1 span {
   }
 
   .creative-form,
-  .workflow-grid {
+  .result-story {
     grid-template-columns: 1fr;
   }
 
@@ -540,7 +561,7 @@ h1 span {
     width: 100%;
   }
 
-  .success-card div {
+  .success-card dl > div {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;

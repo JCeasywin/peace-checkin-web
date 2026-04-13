@@ -5,6 +5,8 @@ create table if not exists public.peace_checkins (
   receiver_name text not null,
   checkin_date date not null,
   status text not null default '平安',
+  prompt text,
+  generated_image_url text,
   checked_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
