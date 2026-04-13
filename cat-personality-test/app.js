@@ -235,14 +235,45 @@ function drawPhotoFrame(ctx, image, x, y, width, height, primary) {
   ctx.clip();
 
   if (image) {
-    ctx.globalAlpha = 0.55;
-    ctx.filter = "blur(18px)";
-    coverImage(ctx, image, x - 36, y - 36, width + 72, height + 72);
+    const isPortrait = image.height > image.width * 1.1;
+
+    ctx.globalAlpha = isPortrait ? 0.48 : 0.82;
+    ctx.filter = isPortrait ? "blur(24px)" : "blur(10px)";
+    coverImage(ctx, image, x - 42, y - 42, width + 84, height + 84);
     ctx.filter = "none";
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(248, 250, 246, 0.28)";
+    ctx.fillStyle = isPortrait ? "rgba(248, 250, 246, 0.34)" : "rgba(248, 250, 246, 0.18)";
     ctx.fillRect(x, y, width, height);
-    containImage(ctx, image, x + 28, y + 28, width - 56, height - 56);
+
+    if (isPortrait) {
+      const cardHeight = height - 58;
+      const cardWidth = Math.min(width - 220, cardHeight * 0.76);
+      const cardX = x + (width - cardWidth) / 2;
+      const cardY = y + 29;
+
+      ctx.shadowColor = "rgba(30, 31, 29, 0.24)";
+      ctx.shadowBlur = 28;
+      ctx.shadowOffsetY = 18;
+      ctx.fillStyle = "#fffaf0";
+      fillRoundRect(ctx, cardX - 18, cardY - 18, cardWidth + 36, cardHeight + 36, 28);
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+
+      ctx.save();
+      fillRoundRect(ctx, cardX, cardY, cardWidth, cardHeight, 22);
+      ctx.clip();
+      coverImage(ctx, image, cardX, cardY, cardWidth, cardHeight);
+      ctx.restore();
+
+      ctx.fillStyle = primary;
+      fillRoundRect(ctx, x + 46, y + 44, 128, 46, 23);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = '900 24px "Arial Rounded MT Bold", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+      ctx.fillText("CAT FILE", x + 68, y + 76);
+    } else {
+      containImage(ctx, image, x + 28, y + 28, width - 56, height - 56);
+    }
   } else {
     drawPlaceholderCat(ctx, x, y, width, height, primary);
   }
@@ -289,45 +320,45 @@ function renderPoster(result) {
   ctx.fillStyle = accent;
   ctx.fillRect(54, 54, 972, 18);
 
-  drawPhotoFrame(ctx, state.image, 54, 96, 972, 580, primary);
+  drawPhotoFrame(ctx, state.image, 54, 96, 972, 700, primary);
 
   ctx.fillStyle = accent;
-  fillRoundRect(ctx, 54, 712, 972, 630, 30);
+  fillRoundRect(ctx, 54, 830, 972, 545, 30);
   ctx.fillStyle = "rgba(255, 255, 255, 0.88)";
-  fillRoundRect(ctx, 84, 742, 912, 570, 24);
+  fillRoundRect(ctx, 84, 860, 912, 500, 24);
 
   ctx.fillStyle = primary;
-  ctx.font = `900 38px ${funFont}`;
-  ctx.fillText(`${catName} 的猫格测试`, 120, 812);
+  ctx.font = `900 36px ${funFont}`;
+  ctx.fillText(`${catName} 的猫格测试`, 120, 922);
 
   ctx.fillStyle = primary;
-  ctx.font = `900 86px ${funFont}`;
-  ctx.fillText(result.data.title, 120, 908);
+  ctx.font = `900 76px ${funFont}`;
+  ctx.fillText(result.data.title, 120, 1008);
 
   let tagX = 120;
-  ctx.font = `900 30px ${funFont}`;
+  ctx.font = `900 27px ${funFont}`;
   result.data.tags.forEach((tag) => {
-    const width = ctx.measureText(tag).width + 52;
+    const width = ctx.measureText(tag).width + 46;
     ctx.fillStyle = primary;
-    fillRoundRect(ctx, tagX, 944, width, 58, 18);
+    fillRoundRect(ctx, tagX, 1038, width, 52, 18);
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(tag, tagX + 26, 983);
-    tagX += width + 16;
+    ctx.fillText(tag, tagX + 23, 1073);
+    tagX += width + 14;
   });
 
   ctx.fillStyle = "#252724";
-  ctx.font = `800 46px ${funFont}`;
-  const afterPosterLine = wrapCanvasText(ctx, result.data.posterLine, 120, 1076, 820, 64);
+  ctx.font = `800 40px ${funFont}`;
+  const afterPosterLine = wrapCanvasText(ctx, result.data.posterLine, 120, 1150, 820, 52);
 
   ctx.fillStyle = primary;
-  fillRoundRect(ctx, 120, afterPosterLine + 24, 12, 92, 6);
+  fillRoundRect(ctx, 120, afterPosterLine + 18, 12, 72, 6);
   ctx.fillStyle = "#252724";
-  ctx.font = `900 34px ${funFont}`;
-  wrapCanvasText(ctx, result.data.punchline, 154, afterPosterLine + 64, 760, 50);
+  ctx.font = `900 30px ${funFont}`;
+  wrapCanvasText(ctx, result.data.punchline, 154, afterPosterLine + 52, 760, 40);
 
   ctx.fillStyle = "#6a6d64";
   ctx.font = `700 24px ${funFont}`;
-  ctx.fillText("上传猫照 · 回答 20 题 · 生成海报", 72, 1370);
+  ctx.fillText("上传猫照 · 回答 20 题 · 生成海报", 72, 1410);
 }
 
 function showResult() {
