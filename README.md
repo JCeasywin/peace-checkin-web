@@ -46,6 +46,20 @@ git remote add origin git@github.com:<你的 GitHub 用户名>/peace-checkin-web
 4. 从 GitHub 列表里 Import `peace-checkin-web`。
 5. Framework Preset 选择 `Other`，Build Command 留空，Output Directory 留空，然后点击 Deploy。
 
+## 不用 Vercel：GitHub Pages 部署
+
+如果 Vercel 注册不了，可以直接用 GitHub Pages 发布这个静态网页。
+
+1. 打开仓库：`https://github.com/JCeasywin/peace-checkin-web`
+2. 进入 `Settings` -> `Pages`。
+3. 在 `Build and deployment` 里，`Source` 选择 `Deploy from a branch`。
+4. `Branch` 选择 `main`，目录选择 `/ (root)`，然后点击 `Save`。
+5. 等待 1-2 分钟，网页地址通常是：
+
+```text
+https://jceasywin.github.io/peace-checkin-web/
+```
+
 ## 目前限制
 
 这是第一版本地原型，记录保存在当前浏览器里。也就是说：
