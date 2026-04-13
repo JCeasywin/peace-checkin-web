@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>今日平安</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <canvas id="fireworks" aria-hidden="true"></canvas>
+
+    <main class="app-shell">
+      <section class="status-area" aria-labelledby="page-title">
+        <div class="topline">
+          <span class="brand">今日平安</span>
+          <span id="status-pill" class="status-pill">等待报平安</span>
+        </div>
+
+        <div class="photo-band">
+          <img
+            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+            alt="傍晚的山路"
+          />
+        </div>
+
+        <p id="today-label" class="date-label"></p>
+        <h1 id="page-title">爸，今天点一下就好。</h1>
+        <p id="message" class="message">点完我就知道你今天一切都好。</p>
+
+        <button id="checkin-button" class="checkin-button" type="button">
+          我今天平安
+        </button>
+
+        <p id="last-checkin" class="last-checkin" aria-live="polite"></p>
+      </section>
+
+      <section class="history-area" aria-labelledby="history-title">
+        <h2 id="history-title">最近记录</h2>
+        <div id="history-list" class="history-list"></div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
