@@ -24,14 +24,46 @@
         </div>
 
         <p id="today-label" class="date-label"></p>
-        <h1 id="page-title">爸，今天点一下就好。</h1>
-        <p id="message" class="message">点完我就知道你今天一切都好。</p>
+        <h1 id="page-title">今天，<span id="sender-name">爸爸</span> 给 <span id="receiver-name">佳琛</span> 报个平安。</h1>
+        <p id="message" class="message">点完以后，接收人就能跨设备看到今日状态。</p>
+
+        <form id="contact-form" class="contact-form">
+          <label>
+            报平安的人
+            <input id="sender-input" name="sender" autocomplete="name" />
+          </label>
+          <label>
+            接收人
+            <input id="receiver-input" name="receiver" autocomplete="name" />
+          </label>
+          <button class="contact-save" type="submit">更新联系人</button>
+        </form>
 
         <button id="checkin-button" class="checkin-button" type="button">
           我今天平安
         </button>
 
         <p id="last-checkin" class="last-checkin" aria-live="polite"></p>
+
+        <article id="success-card" class="success-card" hidden>
+          <p class="success-eyebrow">报平安成功</p>
+          <dl>
+            <div>
+              <dt>时间</dt>
+              <dd id="success-time"></dd>
+            </div>
+            <div>
+              <dt>接收人</dt>
+              <dd id="success-receiver"></dd>
+            </div>
+            <div>
+              <dt>今日状态</dt>
+              <dd id="success-status"></dd>
+            </div>
+          </dl>
+        </article>
+
+        <p id="setup-note" class="setup-note" hidden></p>
       </section>
 
       <section class="history-area" aria-labelledby="history-title">
@@ -40,6 +72,8 @@
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-config.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
